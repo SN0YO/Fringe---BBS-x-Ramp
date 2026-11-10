@@ -40,7 +40,7 @@ Without a key the app still works end to end on the **offline engine** (keyword 
 ## How the agent works
 
 `src/lib/agent.ts`
-1. **Retrieve.** Lexical retrieval over `src/lib/knowledge.ts` (IRS Pub 15-B sections + company policy chunks). The full corpus also sits in a cached system prompt.
+1. **Retrieve.** Lexical retrieval over `src/lib/knowledge.ts`: 18 passages quoted **verbatim** from IRS Pub 15-B (2026) and Pub 15 (2026) with page references (`src/lib/irs-2026.ts`), plus company policy chunks. The full corpus also sits in a cached system prompt.
 2. **Reason.** Claude (`claude-opus-5-5`) gets merchant, MCC, memo, itemized receipt lines (or the receipt **image**), the employee's role, and any answer they gave. It returns **structured output** (Zod schema): treatment, IRS basis, taxable amount, per-line split, calibrated confidence, citations, and a question for the employee when context is missing.
 3. **Route (human-in-the-loop).** ≥85% confidence → auto-approved; below → finance review queue; `needs_info` → question to the cardholder. Answers re-trigger classification.
 4. **Post.** Approved taxable amounts aggregate per employee per pay period → payroll connector (`/api/payroll`, simulated).
@@ -51,19 +51,20 @@ Statutory limits applied: qualified parking/transit $340/mo (2026), §127 educat
 
 Scoring: correct only if the treatment matches **and** taxable amount is within $1.
 
-| Engine | Demo set (46) | **Held-out set (16)** |
-|---|---|---|
-| Status quo: tax by merchant category | 72% | 50% |
-| Keyword rules (offline engine) | 100%* | 44% |
-| Fringe AI (Claude) | run on `/eval` with a key | run on `/eval` with a key |
+| Engine | Demo workspace (46) | Held-out (16) | Pub 15-B scenarios (50) | **All unseen (66)** |
+|---|---|---|---|---|
+| Status quo: tax by merchant category | 72% | 50% | 50% | **50%** |
+| Keyword rules (offline engine) | 100%* | 44% | 50% | **48%** |
+| Fringe AI (Claude) | run on `/eval` | run on `/eval` | run on `/eval` | **run on `/eval`** |
 
-\*The keyword rules were tuned on the demo set, so 100% there is overfit. The held-out set was written afterward and never used for tuning. Keyword rules collapse on it, which is the case for an LLM. **Run Claude on `/eval` before the pitch and put the real number on the slide.**
+\*The keyword rules were tuned on the demo workspace, so 100% there is overfit. The held-out set and the 50 Pub 15-B scenarios (`src/lib/extended.ts`) were written afterward and never used for tuning. Each scenario's label cites the 2026 Pub 15-B / Pub 15 page it relies on. The labels were drafted by AI and should get a practitioner review. **Click "Run Fringe AI" on `/eval` → "All unseen (66)" before the pitch and put the real number on the slide.**
 
 ## Team to-dos
 
 **Ishan (validation, pitch)**
-- [ ] Replace the IRS summaries in `src/lib/knowledge.ts` with exact 2026 Pub 15-B language; have a practitioner review limits.
-- [ ] Build a bigger practitioner-labeled set → import on `/eval` (CSV columns: `merchant,mcc,amount,memo,receipt_lines,truth_treatment,truth_taxable`; `receipt_lines` like `Monitor:349.99|Game:80`).
+- [x] IRS passages replaced with verbatim 2026 Pub 15-B / Pub 15 text (`src/lib/irs-2026.ts`), machine-checked against the official PDFs.
+- [ ] Have a payroll practitioner review the 50 labeled scenarios in `src/lib/extended.ts` and the "Fringe note" application notes.
+- [ ] Add more practitioner-labeled cases from interviews → import on `/eval` (CSV columns: `merchant,mcc,amount,memo,receipt_lines,truth_treatment,truth_taxable`; `receipt_lines` like `Monitor:349.99|Game:80`).
 - [ ] Validate the 4 min/transaction manual-review assumption (Overview "time saved").
 
 **Aarushi (engineering)**
@@ -81,4 +82,4 @@ Scoring: correct only if the treatment matches **and** taxable amount is within 
 5. **Accuracy** → held-out set: status quo 50%, rules 44%, Fringe AI _X_%.
 
 ---
-IRS content in this prototype is summarized for demonstration and is not tax advice. Company, employees and transactions are fictional.
+IRS passages are quoted from the 2026 editions of Pub 15-B and Pub 15; "Fringe notes" are our own application guidance. This prototype is not tax advice. Company, employees and transactions are fictional.

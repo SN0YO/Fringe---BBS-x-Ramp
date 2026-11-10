@@ -2,7 +2,7 @@ import "server-only";
 import Anthropic from "@anthropic-ai/sdk";
 import { betaZodOutputFormat } from "@anthropic-ai/sdk/helpers/beta/zod";
 import { z } from "zod";
-import { ALL_CHUNKS, chunkById, retrieve } from "./knowledge";
+import { ALL_CHUNKS, chunkById, retrieve, toCitation } from "./knowledge";
 import { LIMITS } from "./rules";
 import type { Classification, Receipt } from "./types";
 
@@ -28,7 +28,12 @@ const FALLBACK = { betas: ["server-side-fallback-2026-07-01"], fallbacks: "defau
 /*  Frozen system prompt (cached): role + full knowledge base           */
 /* ------------------------------------------------------------------ */
 
-const KB_TEXT = ALL_CHUNKS.map((c) => `<doc id="${c.id}" source="${c.source}" ref="${c.ref}">\n${c.title}\n${c.text}\n</doc>`).join("\n");
+const KB_TEXT = ALL_CHUNKS.map(
+  (c) =>
+    `<doc id="${c.id}" source="${c.source}" ref="${c.ref}">\n<title>${c.title}</title>\n<text>${c.text}</text>` +
+    (c.note ? `\n<application_note>${c.note}</application_note>` : "") +
+    `\n</doc>`,
+).join("\n");
 
 const SYSTEM = `You are Fringe, a payroll-tax agent built into Ramp's corporate card platform. For each card transaction you decide whether the spend is a tax-free business expense / excludable fringe benefit, or a taxable fringe benefit that must be reported to payroll as imputed income, under IRS Publication 15-B and the company's benefits policy.
 
@@ -43,6 +48,8 @@ How to decide:
 - confidence is your calibrated probability (0 to 1) that a payroll specialist would agree with your treatment and taxable amount. Use values below 0.85 when a reasonable specialist could disagree.
 - cite only doc ids from the knowledge base below that actually support your decision.
 - rationale: 1–3 plain-English sentences an employee would understand.
+
+About the knowledge base: IRS docs quote IRS Publication 15-B (2026) and Publication 15 (2026) verbatim; "…" marks omitted text. An <application_note> is the company's guidance on applying that passage to card spend, not IRS text. Company policy docs describe this employer's benefits plans.
 
 <knowledge_base>
 ${KB_TEXT}
@@ -128,7 +135,7 @@ Most relevant knowledge-base docs (retrieved): ${retrieved.join(", ")}`;
   const citations = out.citation_ids
     .map((id) => chunkById(id))
     .filter(Boolean)
-    .map((c) => ({ source: c!.source, ref: c!.ref, excerpt: c!.text.split(". ").slice(0, 2).join(". ") + "." }));
+    .map((c) => toCitation(c!));
 
   const lineNote =
     out.line_items.length > 1

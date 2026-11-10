@@ -180,7 +180,12 @@ export function TxDrawer() {
                     <div className="text-[12px] font-medium">
                       {ct.source} · <span className="text-muted">{ct.ref}</span>
                     </div>
-                    <div className="mt-0.5 text-[13px] text-ink-2">{ct.excerpt}</div>
+                    <div className="mt-0.5 text-[13px] text-ink-2">{ct.source === "Company policy" ? ct.excerpt : `“${ct.excerpt}”`}</div>
+                    {ct.url && (
+                      <a href={ct.url} target="_blank" rel="noreferrer" className="mt-1 inline-block text-[11px] text-muted underline-offset-2 hover:text-ink hover:underline">
+                        Open {ct.source} (2026) ↗
+                      </a>
+                    )}
                   </div>
                 ))}
               </div>

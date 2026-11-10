@@ -14,7 +14,9 @@ const EMPLOYEE_PROMPTS = ["Will my monitor purchase be taxed?", "Why is my gym m
 function render(text: string) {
   return text.split("\n").map((line, i) => (
     <p key={i} className={cx(line.trim() === "" && "h-2")}>
-      {line.split(/(\*\*[^*]+\*\*)/g).map((part, j) => (part.startsWith("**") ? <b key={j}>{part.slice(2, -2)}</b> : part))}
+      {line.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g).map((part, j) =>
+        part.startsWith("**") ? <b key={j}>{part.slice(2, -2)}</b> : part.length > 2 && part.startsWith("*") && part.endsWith("*") ? <i key={j}>{part.slice(1, -1)}</i> : part,
+      )}
     </p>
   ));
 }

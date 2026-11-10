@@ -23,7 +23,8 @@ export type TxStatus =
   | "synced"; // posted to payroll
 
 export interface Citation {
-  source: "IRS Pub 15-B" | "Company policy" | "IRS Notice 2011-72" | "IRC";
+  source: "IRS Pub 15-B" | "IRS Pub 15" | "Company policy";
+  url?: string;
   ref: string;
   excerpt: string;
 }
@@ -109,7 +110,7 @@ export const BASIS_LABEL: Record<Basis, string> = {
   qualified_transportation: "Qualified transportation · §132(f)",
   educational_assistance: "Educational assistance · §127",
   achievement_award: "Employee achievement award · §74(c)",
-  cell_phone: "Employer-provided cell phone · Notice 2011-72",
+  cell_phone: "Employer-provided cell phone · §132(d)/(e)",
   taxable_cash_equivalent: "Cash / cash equivalent (always taxable)",
   taxable_wellness: "Wellness / fitness benefit (taxable)",
   taxable_personal: "Personal expense (taxable)",
