@@ -2,13 +2,17 @@ import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
 import { aiEnabled, classifyWithClaude, type ClassifyInput } from "@/lib/agent";
 import { classifyRules } from "@/lib/rules";
+import { recordedClassification } from "@/lib/recorded";
 
 export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const tx = (await req.json()) as ClassifyInput;
   if (!aiEnabled()) {
-    return NextResponse.json({ classification: classifyRules(tx), fallback: "no_api_key" });
+    // Demo mode: replay a recorded Claude output if we have one, else the free offline engine.
+    const rec = recordedClassification(tx);
+    if (rec) return NextResponse.json({ classification: { ...rec, classifiedAt: new Date().toISOString() }, recorded: true });
+    return NextResponse.json({ classification: classifyRules(tx), fallback: "demo_mode" });
   }
   try {
     return NextResponse.json({ classification: await classifyWithClaude(tx) });

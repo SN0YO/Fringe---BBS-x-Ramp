@@ -74,7 +74,7 @@ export function TxDrawer() {
                 <Sparkles className="size-4" /> Fringe decision
               </div>
               <span className="rounded-md bg-paper px-1.5 py-0.5 text-[11px] text-muted">
-                {c.engine === "claude" ? `Claude · ${c.model}` : c.engine === "human" ? "Set by finance" : "Offline engine"}
+                {c.engine === "claude" ? `Claude · ${c.model}${s.ai.enabled ? "" : " · recorded"}` : c.engine === "human" ? "Set by finance" : "Offline engine"}
               </span>
             </div>
             {busy ? (

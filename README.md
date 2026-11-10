@@ -29,7 +29,9 @@ cp .env.example .env.local   # add your ANTHROPIC_API_KEY
 npm run dev                  # http://localhost:3000
 ```
 
-Without a key the app still works end to end on the **offline engine** (keyword heuristics). With a key, every decision, receipt read (vision), and chat answer comes from Claude, and the Accuracy page can score it.
+**Two modes:**
+- **Demo mode (default, $0):** no Claude API calls, even if a key is set. The app replays real recorded Claude outputs (`src/lib/recorded.ts`: the Amazon receipt split and the gift-card chat answer), shows the saved 65/66 accuracy run (`src/lib/eval-snapshot.ts`), and uses the free offline engine for everything else.
+- **Live mode:** set `ANTHROPIC_API_KEY` **and** `FRINGE_LIVE=true` (Vercel → Settings → Environment Variables, then redeploy). Every decision, receipt photo and chat answer then calls Claude and uses API credits.
 
 ### Deploy (Vercel)
 

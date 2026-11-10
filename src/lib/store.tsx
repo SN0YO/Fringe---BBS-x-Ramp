@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { classifyRules } from "./rules";
+import { recordedClassification } from "./recorded";
 import { CURRENT_PERIOD, EMPLOYEES, PAY_PERIODS, SEED_TRANSACTIONS, payPeriodFor } from "./seed";
 import type { Classification, Employee, PayPeriod, Receipt, Transaction, Treatment, TxStatus } from "./types";
 import { AUTO_APPROVE_THRESHOLD } from "./types";
@@ -38,7 +39,7 @@ const nowIso = () => new Date().toISOString();
 function seedState(): State {
   const transactions: Transaction[] = SEED_TRANSACTIONS.map((s) => {
     const emp = EMPLOYEES.find((e) => e.id === s.employeeId)!;
-    const c = classifyRules({ ...s, employeeTitle: emp.title });
+    const c = recordedClassification(s) ?? classifyRules({ ...s, employeeTitle: emp.title });
     const prior = s.date < "2026-11-01";
     return {
       id: s.id,

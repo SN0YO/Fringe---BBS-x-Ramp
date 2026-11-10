@@ -43,7 +43,7 @@ export function ReceiptUpload({ txId, amount, merchant }: { txId: string; amount
       const imageDataUrl = await toDataUrl(f);
       if (!s.ai.enabled) {
         setState("manual");
-        setErr("Claude isn't connected, so enter the line items by hand.");
+        setErr("Receipt photo reading needs a live Claude call, which is off in demo mode. Enter the line items instead.");
         return;
       }
       const res = await fetch("/api/receipt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl }) });
