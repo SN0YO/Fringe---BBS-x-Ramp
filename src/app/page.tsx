@@ -1,103 +1,170 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { classifyMccBaseline } from "@/lib/rules";
+import { BASIS_LABEL, type Basis, type Treatment } from "@/lib/types";
+import { money, payrollLines, round2, taxOn } from "@/lib/payroll";
+import { Button, Card, PageHeader, Stat, TreatmentPill, cx } from "@/components/ui";
+import { TxTable } from "@/components/TxTable";
+
+// Assumption (to be validated in practitioner interviews): manual review of a
+// card transaction for fringe-benefit taxability takes ~4 minutes end to end.
+const MANUAL_MIN_PER_TX = 4;
+
+export default function Overview() {
+  const s = useStore();
+  const period = s.periods.find((p) => p.id === s.currentPeriod)!;
+  const txs = s.transactions.filter((t) => t.payPeriod === s.currentPeriod);
+  const spend = txs.reduce((a, t) => a + t.amount, 0);
+  const taxable = round2(txs.reduce((a, t) => a + (t.classification?.taxableAmount ?? 0), 0));
+  const auto = txs.filter((t) => t.status === "auto_approved").length;
+  const queue = txs.filter((t) => t.status === "in_review" || t.status === "awaiting_employee");
+
+  // Versus "guess from the card feed": what would have been over- or under-taxed?
+  let overTaxPrevented = 0;
+  let underReportCaught = 0;
+  for (const t of txs) {
+    const c = t.classification!;
+    if (c.treatment === "needs_info") continue;
+    const base = classifyMccBaseline(t).taxableAmount;
+    if (base > c.taxableAmount) overTaxPrevented += base - c.taxableAmount;
+    if (c.taxableAmount > base) underReportCaught += c.taxableAmount - base;
+  }
+
+  const byBasis = new Map<Basis, number>();
+  txs.forEach((t) => {
+    const c = t.classification!;
+    if (c.taxableAmount > 0) byBasis.set(c.basis, (byBasis.get(c.basis) ?? 0) + c.taxableAmount);
+  });
+  const basisRows = [...byBasis.entries()].sort((a, b) => b[1] - a[1]);
+  const maxBasis = Math.max(1, ...basisRows.map((r) => r[1]));
+
+  const mix: Record<Treatment, number> = { tax_free: 0, taxable: 0, partial: 0, needs_info: 0 };
+  txs.forEach((t) => mix[t.classification!.treatment]++);
+  const lines = payrollLines(s.transactions, s.employees, s.currentPeriod);
+  const pendingLines = lines.reduce((a, l) => a + l.amount, 0);
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      <PageHeader
+        title="Fringe overview"
+        subtitle={`Pay period ${period.label} · payroll runs ${new Date(period.payDate + "T12:00").toLocaleDateString("en-US", { month: "long", day: "numeric" })}`}
+        actions={
+          <>
+            {s.ai.enabled && (
+              <Button onClick={() => s.classifyMany(txs.filter((t) => t.status !== "synced" && t.classification?.engine !== "claude").map((t) => t.id))}>
+                <Sparkles className="size-4" /> Run Fringe AI on period
+              </Button>
+            )}
+            <Link href="/review">
+              <Button variant="primary">
+                Review {queue.length} items <ArrowRight className="size-4" />
+              </Button>
+            </Link>
+          </>
+        }
+      />
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Card spend analyzed" value={money(spend, false)} sub={`${txs.length} transactions, every memo + receipt read`} />
+        <Stat label="Taxable fringe found" value={money(taxable)} sub="Reported as imputed income" />
+        <Stat label="Over-taxing prevented" value={money(overTaxPrevented)} sub="vs. taxing by merchant category" accent />
+        <Stat label="Missed income caught" value={money(underReportCaught)} sub="W-2c corrections avoided" />
+      </div>
+
+      <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Stat label="Auto-approved" value={`${Math.round((auto / Math.max(1, txs.length)) * 100)}%`} sub={`${auto} of ${txs.length} at ≥85% confidence`} />
+        <Stat label="Needs a human" value={queue.length} sub={`${txs.filter((t) => t.status === "awaiting_employee").length} waiting on employees`} />
+        <Stat label="Finance time saved" value={`${((auto * MANUAL_MIN_PER_TX) / 60).toFixed(1)} hrs`} sub={`Assumes ${MANUAL_MIN_PER_TX} min manual review per txn`} />
+        <Stat label="Employee tax avoided" value={money(taxOn(overTaxPrevented))} sub="Withholding employees keep" />
+      </div>
+
+      <div className="mt-6 grid gap-4 lg:grid-cols-3">
+        <Card className="p-5 lg:col-span-2">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-semibold">Taxable fringe by IRS basis</h2>
+            <span className="text-[12px] text-muted">This period</span>
+          </div>
+          {basisRows.length === 0 ? (
+            <div className="text-sm text-muted">No taxable items yet.</div>
+          ) : (
+            <div className="space-y-3">
+              {basisRows.map(([b, v]) => (
+                <div key={b} className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 gap-y-1 sm:grid-cols-[220px_minmax(0,1fr)_80px]" title={`${BASIS_LABEL[b]}: ${money(v)}`}>
+                  <div className="truncate text-[13px] text-ink-2">{BASIS_LABEL[b]}</div>
+                  <div className="order-3 col-span-2 h-2.5 rounded-full bg-paper sm:order-none sm:col-span-1">
+                    <div className="h-full rounded-full bg-ink transition-all group-hover:bg-ink-2" style={{ width: `${(v / maxBasis) * 100}%` }} />
+                  </div>
+                  <div className="tabular text-right text-[13px] font-medium">{money(v, false)}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="mt-6 border-t border-line pt-4">
+            <div className="mb-2 text-[13px] font-medium">Decision mix</div>
+            <div className="flex h-2.5 gap-0.5 overflow-hidden rounded-full">
+              {(Object.keys(mix) as Treatment[]).map((k) =>
+                mix[k] ? (
+                  <div
+                    key={k}
+                    title={`${k}: ${mix[k]}`}
+                    className={cx(k === "tax_free" && "bg-free", k === "taxable" && "bg-tax", k === "partial" && "bg-partial", k === "needs_info" && "bg-info")}
+                    style={{ flex: mix[k] }}
+                  />
+                ) : null,
+              )}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-3">
+              {(Object.keys(mix) as Treatment[]).map((k) => (
+                <span key={k} className="flex items-center gap-1.5">
+                  <TreatmentPill t={k} /> <span className="tabular text-[13px] text-muted">{mix[k]}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        <Card className="flex flex-col p-5">
+          <div className="text-[13px] text-muted">Next payroll</div>
+          <div className="mt-1 text-lg font-semibold">{new Date(period.payDate + "T12:00").toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" })}</div>
+          <div className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted">Ready to post</span>
+              <span className="tabular font-medium">{money(pendingLines)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Employees affected</span>
+              <span className="tabular font-medium">{lines.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Blocking items</span>
+              <span className="tabular font-medium">{queue.length}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted">Providers</span>
+              <span className="font-medium">Gusto · Rippling</span>
+            </div>
+          </div>
+          <Link href="/payroll" className="mt-auto pt-5">
+            <Button variant="accent" className="w-full">
+              Open payroll sync <ArrowRight className="size-4" />
+            </Button>
+          </Link>
+        </Card>
+      </div>
+
+      <Card className="mt-4">
+        <div className="flex items-center justify-between px-5 py-4">
+          <h2 className="font-semibold">Needs attention</h2>
+          <Link href="/review" className="text-[13px] text-ink-2 hover:underline">
+            View queue
+          </Link>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+        <TxTable txs={queue.slice(0, 6)} compact />
+      </Card>
+    </>
   );
 }
