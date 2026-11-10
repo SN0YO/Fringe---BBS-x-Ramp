@@ -1,4 +1,4 @@
-import { chunkById } from "./knowledge";
+import { chunkById, toCitation } from "./knowledge";
 import type { Basis, Citation, Classification, Transaction, Treatment } from "./types";
 
 export const LIMITS = {
@@ -21,7 +21,7 @@ function cite(...ids: string[]): Citation[] {
   return ids
     .map((id) => chunkById(id))
     .filter(Boolean)
-    .map((c) => ({ source: c!.source, ref: c!.ref, excerpt: c!.text.split(". ").slice(0, 2).join(". ") + "." }));
+    .map((c) => toCitation(c!));
 }
 
 /* ------------------------------------------------------------------ */
@@ -66,19 +66,19 @@ function classifyLine(text: string, mcc: string): LineCall {
   if (has(t, /gift ?card|e-?gift|gift certificate|prepaid card|visa gift|giftcard/))
     return { treatment: "taxable", basis: "taxable_cash_equivalent", confidence: 0.97, chunks: ["irs-cash-equivalent", "pol-gifts"], why: "Gift cards are cash equivalents and are never de minimis" };
   if (has(t, /season ticket/))
-    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.9, chunks: ["irs-de-minimis"], why: "Season tickets are explicitly not de minimis" };
+    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.9, chunks: ["irs-not-de-minimis"], why: "Season tickets are explicitly not de minimis" };
   if (has(t, /companion|spouse|partner ticket|\bwife\b|\bhusband\b|my kids|vacation|weekend|saturday|sunday/))
     return { treatment: "taxable", basis: "taxable_personal", confidence: 0.85, chunks: ["irs-accountable-plan", "pol-travel"], why: "Personal or family use with no business purpose" };
   if (has(t, /playstation|nintendo|xbox|switch game|mario|video game|console|dualsense|game controller|controller|\btv\b|television/))
     return { treatment: "taxable", basis: "taxable_personal", confidence: 0.9, chunks: ["irs-working-condition", "pol-home-office"], why: "Personal electronics are not work equipment" };
   if (has(t, /gym|fitness|equinox|classpass|peloton|yoga|pilates|wellness|massage|headspace|\bcalm\b|soulcycle|orangetheory|crossfit/) || m === "fitness")
-    return { treatment: "taxable", basis: "taxable_wellness", confidence: 0.95, chunks: ["irs-athletic", "pol-wellness"], why: "Off-site fitness and wellness benefits are taxable" };
+    return { treatment: "taxable", basis: "taxable_wellness", confidence: 0.95, chunks: ["irs-athletic", "irs-not-de-minimis", "pol-wellness"], why: "Off-site fitness and wellness benefits are taxable" };
   if (has(t, /cooking|golf|painting|hobby|masterclass/))
     return { treatment: "taxable", basis: "taxable_personal", confidence: 0.75, chunks: ["irs-education", "pol-learning"], why: "Hobby/recreational classes are excluded from the education program" };
   if (has(t, /stipend/))
-    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.85, chunks: ["pol-phone-internet", "irs-general"], why: "Flat, unsubstantiated stipends are wages" };
+    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.85, chunks: ["irs-nonaccountable", "pol-phone-internet"], why: "Flat, unsubstantiated stipends are wages" };
   if (has(t, /commute|to (the )?office|home to office/) && !has(t, /late|pm\b|after|incident|overtime/))
-    return { treatment: "taxable", basis: "taxable_commuting", confidence: 0.85, chunks: ["irs-transportation", "pol-commute"], why: "Rideshare between home and the office is personal commuting" };
+    return { treatment: "taxable", basis: "taxable_commuting", confidence: 0.85, chunks: ["irs-de-minimis-transport", "pol-commute"], why: "Rideshare between home and the office is personal commuting" };
   if (has(t, /transit|clipper|bart|metro|parking|garage/) || m === "transit" || m === "parking")
     return { treatment: "tax_free", basis: "qualified_transportation", confidence: 0.88, chunks: ["irs-transportation", "pol-commute"], why: "Qualified transportation fringe up to the monthly limit" };
   if (has(t, /verizon|t-mobile|at&t|phone plan|mobile plan|cell plan/) || m === "telecom")
@@ -90,7 +90,7 @@ function classifyLine(text: string, mcc: string): LineCall {
   if (has(t, /monitor|keyboard|mouse|webcam|headset|headphone|airpods|dock|chair|desk|ipad|laptop|printer|ink|notebook|stand|pencil|applecare|home office/) || m === "office supplies")
     return { treatment: "tax_free", basis: "working_condition", confidence: has(t, /work|office|calls|design|review/) ? 0.92 : 0.8, chunks: ["irs-working-condition", "pol-home-office"], why: "Equipment used for the employee's job is a working-condition fringe" };
   if ((m === "clothing" && !has(t, /uniform|protective|logo|swag/)) || has(t, /outfit|jacket|shoes|apparel|dress|lululemon|nordstrom/))
-    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.72, chunks: ["irs-clothing"], why: "Clothing suitable for everyday wear is personal" };
+    return { treatment: "taxable", basis: "taxable_personal", confidence: 0.72, chunks: ["irs-general", "irs-working-condition"], why: "Clothing suitable for everyday wear is personal" };
   if (has(t, /flight|airline|hotel|lodging|airbnb|offsite|qbr|onsite|conference|kubecon|workshop|sfo|jfk|trip/) || ["airlines", "lodging", "coworking"].includes(m))
     return has(t, /client|customer|offsite|qbr|onsite|conference|kubecon|workshop|business|trip|main cabin/)
       ? { treatment: "tax_free", basis: "accountable_plan", confidence: 0.9, chunks: ["irs-accountable-plan", "pol-travel"], why: "Substantiated business travel under an accountable plan" }
@@ -98,7 +98,7 @@ function classifyLine(text: string, mcc: string): LineCall {
   if (has(t, /snack|party|celebration|cake|holiday gift|mug|logo|swag|team gift/))
     return { treatment: "tax_free", basis: "de_minimis", confidence: 0.86, chunks: ["irs-de-minimis", "pol-gifts"], why: "Occasional, low-value benefit is de minimis" };
   if (has(t, /late|overtime|deadline|release|incident|after \d|pm\b/))
-    return { treatment: "tax_free", basis: "de_minimis", confidence: 0.84, chunks: ["irs-de-minimis", "irs-meals", "pol-meals"], why: "Occasional meal or ride because of overtime is de minimis" };
+    return { treatment: "tax_free", basis: "de_minimis", confidence: 0.84, chunks: ["irs-meals", "irs-de-minimis-transport", "pol-meals"], why: "Occasional meal or ride because of overtime is de minimis" };
   if (has(t, /client|customer|team lunch|team dinner|attendees|renewal|planning/))
     return { treatment: "tax_free", basis: "accountable_plan", confidence: 0.88, chunks: ["irs-accountable-plan", "pol-meals"], why: "Business meal with documented purpose" };
 

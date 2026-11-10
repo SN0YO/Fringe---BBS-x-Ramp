@@ -19,8 +19,21 @@ function Chunk({ c, hit }: { c: KnowledgeChunk; hit?: number }) {
         </div>
         {hit !== undefined && <span className="rounded-md bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-accent-ink">#{hit + 1}</span>}
       </div>
-      <p className="mt-2 text-[13px] leading-relaxed text-ink-2">{c.text}</p>
-      <div className="mt-2 font-mono text-[11px] text-muted">{c.id}</div>
+      {c.source !== "Company policy" && <div className="mt-2 text-[11px] font-medium uppercase tracking-wider text-muted">Official text</div>}
+      <p className="mt-1 text-[13px] leading-relaxed text-ink-2">{c.text}</p>
+      {c.note && (
+        <div className="mt-2 rounded-lg bg-paper px-3 py-2 text-[12px] leading-relaxed text-ink-2">
+          <span className="font-medium">Fringe note (not IRS text):</span> {c.note}
+        </div>
+      )}
+      <div className="mt-2 flex items-center justify-between font-mono text-[11px] text-muted">
+        <span>{c.id}</span>
+        {c.url && (
+          <a href={c.url} target="_blank" rel="noreferrer" className="font-sans underline-offset-2 hover:text-ink hover:underline">
+            Source PDF ↗
+          </a>
+        )}
+      </div>
     </div>
   );
 }
@@ -84,8 +97,8 @@ export default function Policy() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-sm font-semibold">IRS Publication 15-B &amp; guidance</h2>
-          <p className="-mt-2 mb-3 text-[12px] text-muted">Plain-English summaries for this prototype, not verbatim IRS text. Verify against the current-year publication.</p>
+          <h2 className="mb-3 text-sm font-semibold">IRS Publication 15-B (2026) &amp; Publication 15 (2026)</h2>
+          <p className="-mt-2 mb-3 text-[12px] text-muted">Quoted verbatim from the 2026 editions, with page references (“…” marks omitted text). Gray boxes are Fringe&apos;s notes on applying each rule to card spend.</p>
           <div className="space-y-3">{IRS_CHUNKS.map((c) => <Chunk key={c.id} c={c} hit={rank(c.id)} />)}</div>
         </section>
         <section>

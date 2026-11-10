@@ -4,6 +4,9 @@ import { useMemo, useRef, useState } from "react";
 import { Check, Loader2, Play, Upload, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { HOLDOUT } from "@/lib/holdout";
+import { EXTENDED } from "@/lib/extended";
+
+const UNSEEN = [...HOLDOUT, ...EXTENDED];
 import { SEED_TRANSACTIONS, type SeedTx } from "@/lib/seed";
 import { classifyMccBaseline, classifyRules } from "@/lib/rules";
 import { TREATMENT_LABEL, type Classification, type Treatment } from "@/lib/types";
@@ -59,14 +62,14 @@ function parseCsv(text: string): SeedTx[] {
 
 export default function Eval() {
   const s = useStore();
-  const [set, setSet] = useState<"holdout" | "seed" | "csv">("holdout");
+  const [set, setSet] = useState<"unseen" | "holdout" | "extended" | "seed" | "csv">("unseen");
   const [csv, setCsv] = useState<SeedTx[]>([]);
   const [claude, setClaude] = useState<Record<string, Classification | undefined>>({});
   const [running, setRunning] = useState(false);
   const [fallbacks, setFallbacks] = useState(0);
   const file = useRef<HTMLInputElement>(null);
 
-  const cases = set === "holdout" ? HOLDOUT : set === "seed" ? SEED_TRANSACTIONS : csv;
+  const cases = set === "unseen" ? UNSEEN : set === "holdout" ? HOLDOUT : set === "extended" ? EXTENDED : set === "seed" ? SEED_TRANSACTIONS : csv;
   const emp = (id: string) => s.employees.find((e) => e.id === id);
   const mcc = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyMccBaseline(t)])), [cases]);
   const rules = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyRules({ ...t, employeeTitle: emp(t.employeeId)?.title })])), [cases]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -118,8 +121,10 @@ export default function Eval() {
 
       <div className="mb-4 flex flex-wrap gap-1 rounded-lg border border-line-2 bg-white p-0.5 text-[13px] sm:w-fit">
         {([
-          ["holdout", `Held-out set (${HOLDOUT.length})`],
-          ["seed", `Demo set (${SEED_TRANSACTIONS.length})`],
+          ["unseen", `All unseen (${UNSEEN.length})`],
+          ["holdout", `Held-out (${HOLDOUT.length})`],
+          ["extended", `Pub 15-B scenarios (${EXTENDED.length})`],
+          ["seed", `Demo workspace (${SEED_TRANSACTIONS.length})`],
           ["csv", `Imported (${csv.length})`],
         ] as const).map(([k, l]) => (
           <button key={k} onClick={() => { setSet(k); setClaude({}); }} className={cx("rounded-md px-3 py-1.5 font-medium", set === k ? "bg-ink text-white" : "text-ink-2")}>
@@ -128,7 +133,9 @@ export default function Eval() {
         ))}
       </div>
       <p className="mb-4 text-[13px] text-muted">
+        {set === "unseen" && "Held-out + Pub 15-B scenarios: every case the keyword rules were never tuned on. Use this number in the pitch."}
         {set === "holdout" && "Written after the keyword rules were tuned and never used to tune them, so this measures generalization."}
+        {set === "extended" && "50 scenarios written against the 2026 Pub 15-B / Pub 15 text (gift cards, awards, limits, mixed receipts, spouse travel, bicycle commuting…). Each label cites its page. Drafted by AI, so have a practitioner review it."}
         {set === "seed" && "The demo workspace's transactions. The keyword rules were tuned on these, so their score here is optimistic."}
         {set === "csv" && "Columns: merchant, mcc, amount, memo, receipt_lines (\"desc:12.50|desc2:30\"), truth_treatment (tax_free | taxable | partial | needs_info), truth_taxable."}
       </p>
@@ -188,6 +195,7 @@ export default function Eval() {
                 <td className="py-3">
                   <TreatmentPill t={t.truth.treatment} />
                   {t.truth.taxableAmount > 0 && t.truth.treatment !== "taxable" && <div className="tabular mt-1 text-[12px] text-muted">{money(t.truth.taxableAmount)} taxable</div>}
+                  {t.truth.note && t.truth.note !== "Imported" && <div className="mt-1 max-w-[220px] text-[11px] leading-snug text-muted">{t.truth.note}</div>}
                 </td>
                 {(Object.keys(ENGINE_LABEL) as Engine[]).map((e) => {
                   const c = results[e][t.id];
