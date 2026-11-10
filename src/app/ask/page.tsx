@@ -12,7 +12,8 @@ const FINANCE_PROMPTS = ["Why is the T-Mobile charge partially taxable?", "Which
 const EMPLOYEE_PROMPTS = ["Will my monitor purchase be taxed?", "Why is my gym membership taxable?", "Can I expense a standing desk tax-free?", "What does imputed income mean for my paycheck?"];
 
 function render(text: string) {
-  return text.split("\n").map((line, i) => (
+  // Show legal shorthand in plain words ("§7.2" -> "Section 7.2").
+  return text.replace(/§\s?/g, "Section ").split("\n").map((line, i) => (
     <p key={i} className={cx(line.trim() === "" && "h-2")}>
       {line.split(/(\*\*[^*]+\*\*|\*[^*\s][^*]*\*)/g).map((part, j) =>
         part.startsWith("**") ? <b key={j}>{part.slice(2, -2)}</b> : part.length > 2 && part.startsWith("*") && part.endsWith("*") ? <i key={j}>{part.slice(1, -1)}</i> : part,
@@ -27,7 +28,11 @@ export default function Ask() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [msgs, loading]);
+  // Braces matter: newer Chrome returns a Promise from scrollIntoView, and an
+  // effect must not return anything but a cleanup function.
+  useEffect(() => {
+    end.current?.scrollIntoView({ behavior: "smooth" });
+  }, [msgs, loading]);
 
   const context = () => {
     const txs = s.role === "employee" ? s.transactions.filter((t) => t.employeeId === s.employeeId) : s.transactions;

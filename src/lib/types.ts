@@ -1,12 +1,12 @@
 export type Treatment = "tax_free" | "taxable" | "partial" | "needs_info";
 
 export type Basis =
-  | "working_condition" // IRC §132(d)
-  | "de_minimis" // IRC §132(e)
+  | "working_condition" // IRC Section 132(d)
+  | "de_minimis" // IRC Section 132(e)
   | "accountable_plan" // ordinary business expense, substantiated
-  | "qualified_transportation" // IRC §132(f)
-  | "educational_assistance" // IRC §127
-  | "achievement_award" // IRC §74(c)
+  | "qualified_transportation" // IRC Section 132(f)
+  | "educational_assistance" // IRC Section 127
+  | "achievement_award" // IRC Section 74(c)
   | "cell_phone" // IRS Notice 2011-72
   | "taxable_cash_equivalent"
   | "taxable_wellness"
@@ -104,13 +104,13 @@ export const TREATMENT_LABEL: Record<Treatment, string> = {
 };
 
 export const BASIS_LABEL: Record<Basis, string> = {
-  working_condition: "Working condition fringe · §132(d)",
-  de_minimis: "De minimis fringe · §132(e)",
+  working_condition: "Working condition benefit",
+  de_minimis: "De minimis (minimal) benefit",
   accountable_plan: "Business expense · accountable plan",
-  qualified_transportation: "Qualified transportation · §132(f)",
-  educational_assistance: "Educational assistance · §127",
-  achievement_award: "Employee achievement award · §74(c)",
-  cell_phone: "Employer-provided cell phone · §132(d)/(e)",
+  qualified_transportation: "Qualified transportation benefit",
+  educational_assistance: "Educational assistance (up to $5,250/yr)",
+  achievement_award: "Employee achievement award",
+  cell_phone: "Employer-provided cell phone",
   taxable_cash_equivalent: "Cash / cash equivalent (always taxable)",
   taxable_wellness: "Wellness / fitness benefit (taxable)",
   taxable_personal: "Personal expense (taxable)",
