@@ -155,8 +155,8 @@ export function AiBadge() {
     </div>
   ) : (
     <div className="rounded-lg border border-dashed border-line-2 bg-white px-2.5 py-2 text-[12px] leading-tight">
-      <div className="font-medium">Offline engine</div>
-      <div className="text-muted">Set ANTHROPIC_API_KEY to enable Claude</div>
+      <div className="font-medium">Demo mode · no API cost</div>
+      <div className="text-muted">Recorded Claude results + offline engine. Set FRINGE_LIVE=true for live Claude.</div>
     </div>
   );
 }

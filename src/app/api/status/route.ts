@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { aiEnabled, MODEL } from "@/lib/agent";
+import { aiEnabled, hasKey, MODEL } from "@/lib/agent";
 
 export async function GET() {
-  return NextResponse.json({ ai: aiEnabled(), model: aiEnabled() ? MODEL : null });
+  return NextResponse.json({ ai: aiEnabled(), mode: aiEnabled() ? "live" : "demo", hasKey: hasKey(), model: aiEnabled() ? MODEL : null });
 }

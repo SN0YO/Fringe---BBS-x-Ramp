@@ -117,7 +117,7 @@ export default function Eval() {
             <Button onClick={() => file.current?.click()}>
               <Upload className="size-4" /> Import labeled CSV
             </Button>
-            <Button variant="primary" disabled={!s.ai.enabled || running || !cases.length} onClick={runClaude} title={s.ai.enabled ? "" : "Set ANTHROPIC_API_KEY to run"}>
+            <Button variant="primary" disabled={!s.ai.enabled || running || !cases.length} onClick={runClaude} title={s.ai.enabled ? "Runs Claude live on every case (uses API credits)" : "Live Claude calls are off (demo mode)"}>
               {running ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />} Run Fringe AI
             </Button>
           </>
@@ -159,7 +159,7 @@ export default function Eval() {
                 )}
               </div>
               {e === "claude" && m.n === 0 ? (
-                <div className="mt-2 text-sm text-muted">{s.ai.enabled ? (running ? "Running…" : "Click “Run Fringe AI” to score Claude on this set.") : "Needs ANTHROPIC_API_KEY on the server."}</div>
+                <div className="mt-2 text-sm text-muted">{s.ai.enabled ? (running ? "Running…" : "Click “Run Fringe AI” to score Claude on this set.") : "Live Claude calls are off (demo mode)."}</div>
               ) : (
                 <>
                   <div className="tabular mt-1 text-3xl font-semibold">{Math.round(m.acc * 100)}%</div>

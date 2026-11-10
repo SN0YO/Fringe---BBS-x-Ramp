@@ -10,8 +10,17 @@ export const MODEL = process.env.FRINGE_MODEL || "claude-opus-5-5";
 type Effort = "low" | "medium" | "high" | "xhigh" | "max";
 const EFFORT = (process.env.FRINGE_EFFORT as Effort) || "medium";
 
-export function aiEnabled() {
+export function hasKey() {
   return Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+}
+
+/**
+ * Live Claude calls (which cost API credits) happen only when a key is set AND
+ * FRINGE_LIVE=true. Otherwise the app runs in demo mode: it replays recorded
+ * Claude outputs (src/lib/recorded.ts) and uses the free offline engine.
+ */
+export function aiEnabled() {
+  return hasKey() && process.env.FRINGE_LIVE === "true";
 }
 
 let _client: Anthropic | null = null;
