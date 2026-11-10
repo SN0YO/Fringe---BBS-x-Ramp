@@ -67,7 +67,7 @@ export default function Review() {
     <>
       <PageHeader
         title="Review queue"
-        subtitle="Fringe only escalates what it isn't sure about. Everything at ≥85% confidence is auto-approved, with a full audit trail."
+        subtitle="Fringe only escalates what it isn't sure about. When Fringe is at least 85% sure, it approves automatically. Anything less comes here for a human, with a full audit trail."
         actions={
           review.length > 0 && (
             <Button variant="primary" onClick={() => review.forEach((t) => s.approve(t.id))}>

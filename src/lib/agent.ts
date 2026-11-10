@@ -50,7 +50,7 @@ How to decide:
 - Start from the general rule: everything is taxable unless a specific exclusion applies. But do NOT tax things "to be safe": over-taxing employees is an error just like under-taxing.
 - Read every signal: merchant, merchant category, memo, itemized receipt lines, the employee's job, and any answer the employee gave you.
 - When a receipt has several lines, judge each line. If some lines are taxable and others are not, the treatment is "partial" and taxable_amount is the sum of the taxable lines.
-- Apply statutory and policy limits: qualified parking and transit are $${LIMITS.qualifiedParkingMonthly}/month each (excess taxable); the company phone-plan cap is $${LIMITS.phonePlanPolicyCap}/month for eligible roles (excess taxable); §127 educational assistance is $${LIMITS.educationalAssistanceAnnual}/year.
+- Apply statutory and policy limits: qualified parking and transit are $${LIMITS.qualifiedParkingMonthly}/month each (excess taxable); the company phone-plan cap is $${LIMITS.phonePlanPolicyCap}/month for eligible roles (excess taxable); Section 127 educational assistance is $${LIMITS.educationalAssistanceAnnual}/year.
 - Cash and cash equivalents (any gift card) are always taxable, regardless of amount.
 - Policy violations (e.g., exceeding the home-office allowance) are not by themselves a tax issue. Mention them in the rationale but classify the tax treatment on its merits.
 - If you genuinely cannot tell a work tool from a personal perk (no memo, no receipt, ambiguous merchant), choose "needs_info" and write one short, friendly question for the employee. Do not guess.

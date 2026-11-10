@@ -46,10 +46,10 @@ export default function Policy() {
     return i < 0 ? undefined : i;
   };
   const limits = [
-    ["Qualified parking (§132(f))", `${money(LIMITS.qualifiedParkingMonthly, false)}/mo`, "IRS 2026"],
-    ["Transit & vanpool (§132(f))", `${money(LIMITS.qualifiedTransitMonthly, false)}/mo`, "IRS 2026"],
-    ["Educational assistance (§127)", `${money(LIMITS.educationalAssistanceAnnual, false)}/yr`, "IRS"],
-    ["Achievement awards (§74(c))", "$400 / $1,600 qualified plan", "IRS"],
+    ["Qualified parking (Section 132(f))", `${money(LIMITS.qualifiedParkingMonthly, false)}/mo`, "IRS 2026"],
+    ["Transit & vanpool (Section 132(f))", `${money(LIMITS.qualifiedTransitMonthly, false)}/mo`, "IRS 2026"],
+    ["Educational assistance (Section 127)", `${money(LIMITS.educationalAssistanceAnnual, false)}/yr`, "IRS"],
+    ["Achievement awards (Section 74(c))", "$400 / $1,600 qualified plan", "IRS"],
     ["De minimis cash / gift cards", "Never excludable", "IRS"],
     ["Home office equipment", `${money(LIMITS.homeOfficeAnnual, false)}/yr`, "Northwind policy"],
     ["Wellness stipend (taxable)", `${money(LIMITS.wellnessMonthly, false)}/mo`, "Northwind policy"],

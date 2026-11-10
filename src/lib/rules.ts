@@ -84,7 +84,7 @@ function classifyLine(text: string, mcc: string): LineCall {
   if (has(t, /verizon|t-mobile|at&t|phone plan|mobile plan|cell plan/) || m === "telecom")
     return { treatment: "tax_free", basis: "cell_phone", confidence: has(t, /on-?call|work|support/) ? 0.9 : 0.7, chunks: ["irs-cell-phone", "pol-phone-internet"], why: "Phone provided for noncompensatory business reasons" };
   if (has(t, /course|coursera|udemy|certification|tuition|textbook|specialization|bootcamp/) || m === "education")
-    return { treatment: "tax_free", basis: "educational_assistance", confidence: 0.9, chunks: ["irs-education", "pol-learning"], why: "Covered by the written §127 educational assistance program" };
+    return { treatment: "tax_free", basis: "educational_assistance", confidence: 0.9, chunks: ["irs-education", "pol-learning"], why: "Covered by the written Section 127 educational assistance program" };
   if (has(t, /membership|dues|association|license|creative cloud|adobe|figma|software|subscription/) && !has(t, /netflix|spotify|hulu/))
     return { treatment: "tax_free", basis: "working_condition", confidence: 0.86, chunks: ["irs-working-condition"], why: "Professional dues and job software are deductible working-condition costs" };
   if (has(t, /monitor|keyboard|mouse|webcam|headset|headphone|airpods|dock|chair|desk|ipad|laptop|printer|ink|notebook|stand|pencil|applecare|home office/) || m === "office supplies")

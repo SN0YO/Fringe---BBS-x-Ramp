@@ -75,7 +75,7 @@ export default function Overview() {
       </div>
 
       <div className="mt-3 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Stat label="Auto-approved" value={`${Math.round((auto / Math.max(1, txs.length)) * 100)}%`} sub={`${auto} of ${txs.length} at ≥85% confidence`} />
+        <Stat label="Handled automatically" value={`${Math.round((auto / Math.max(1, txs.length)) * 100)}%`} sub={`${auto} of ${txs.length} transactions. Fringe was at least 85% sure, so no human review needed`} />
         <Stat label="Needs a human" value={queue.length} sub={`${txs.filter((t) => t.status === "awaiting_employee").length} waiting on employees`} />
         <Stat label="Finance time saved" value={`${((auto * MANUAL_MIN_PER_TX) / 60).toFixed(1)} hrs`} sub={`Assumes ${MANUAL_MIN_PER_TX} min manual review per txn`} />
         <Stat label="Employee tax avoided" value={money(taxOn(overTaxPrevented))} sub="Withholding employees keep" />

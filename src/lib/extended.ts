@@ -61,7 +61,7 @@ export const EXTENDED: SeedTx[] = [
   // ---- Wellness / athletic (pp.9–10) ----
   tx("e2", "Barry's", "Fitness", 38, "", taxed(38, "taxable_wellness", "Off-site fitness class; athletic-facility exclusion is on-premises only (pp.9–10).")),
   tx("e6", "Strava", "Digital services", 79.99, "annual subscription", taxed(79.99, "taxable_wellness", "Fitness app; no exclusion applies (general rule, p.3).")),
-  tx("e3", "Calm", "Digital services", 69.99, "meditation app – wellness stipend", taxed(69.99, "taxable_wellness", "Wellness stipend purchase is taxable (policy §4.2; p.3).")),
+  tx("e3", "Calm", "Digital services", 69.99, "meditation app – wellness stipend", taxed(69.99, "taxable_wellness", "Wellness stipend purchase is taxable (policy Section 4.2; p.3).")),
   tx("e4", "24 Hour Fitness", "Fitness", 49.99, "gym membership", taxed(49.99, "taxable_wellness", "Athletic facility membership is not de minimis (p.10).")),
 
   // ---- Working condition (pp.23–24) ----
@@ -82,17 +82,17 @@ export const EXTENDED: SeedTx[] = [
   // ---- Meals (p.18; Pub 15 accountable plan) ----
   tx("e6", "Uber Eats", "Restaurants", 27.4, "dinner – staying late for model training deadline", free("de_minimis", "Occasional overtime meal (p.18).")),
   tx("e1", "Chipotle", "Restaurants", 14.25, "", ask("Single small meal with no memo: could be overtime, business, or personal; ask.")),
-  tx("e2", "Nobu", "Restaurants", 612, "dinner with Globex procurement team (4 guests) – contract signing", free("accountable_plan", "Client meal with documented business purpose (Pub 15 §5).")),
+  tx("e2", "Nobu", "Restaurants", 612, "dinner with Globex procurement team (4 guests) – contract signing", free("accountable_plan", "Client meal with documented business purpose (Pub 15 Section 5).")),
   tx("e3", "Safeway", "Grocery", 143.2, "weekly groceries", taxed(143.2, "taxable_personal", "Personal groceries: no exclusion (p.3).")),
   tx("e7", "Costco", "Wholesale", 268.4, "snacks for office kitchen", part(119.45, "de_minimis", "Office snacks are de minimis; the personal household items are taxable."), [["Kirkland trail mix, sparkling water, granola bars (office kitchen)", 148.95], ["Kirkland paper towels + laundry detergent (home)", 119.45]]),
   tx("e2", "Sweetgreen", "Restaurants", 18.5, "lunch (my daily lunch)", taxed(18.5, "taxable_personal", "Regular personal lunch: not occasional, no business purpose (p.18).")),
 
   // ---- Travel (Pub 15 accountable plan) ----
-  tx("e2", "Hertz", "Car rental", 214.6, "rental car – customer visits in Dallas", free("accountable_plan", "Business travel ground transportation (Pub 15 §5).")),
+  tx("e2", "Hertz", "Car rental", 214.6, "rental car – customer visits in Dallas", free("accountable_plan", "Business travel ground transportation (Pub 15 Section 5).")),
   tx("e6", "SFO Long-Term Parking", "Parking", 96, "airport parking during NYC offsite", free("accountable_plan", "Parking while traveling for business is a travel expense, not commuter parking.")),
   tx("e1", "The Linux Foundation", "Education", 1199, "KubeCon NA registration", free("working_condition", "Job-related conference registration (p.23).")),
   tx("e8", "Four Seasons Austin", "Lodging", 1270, "Austin client workshop – 2 nights", part(260, "accountable_plan", "Room is business travel; the spa charge is personal."), [["Room – 2 nights", 1010], ["Spa – 80-min massage", 260]]),
-  tx("e5", "United Airlines", "Airlines", 896, "flights to Tokyo eng summit for me + my spouse", part(448, "accountable_plan", "Spouse's ticket with no business purpose is wages (Pub 15 §5)."), [["SFO-HND Economy – Leah Goldberg", 448], ["SFO-HND Economy – spouse", 448]]),
+  tx("e5", "United Airlines", "Airlines", 896, "flights to Tokyo eng summit for me + my spouse", part(448, "accountable_plan", "Spouse's ticket with no business purpose is wages (Pub 15 Section 5)."), [["SFO-HND Economy – Leah Goldberg", 448], ["SFO-HND Economy – spouse", 448]]),
   tx("e6", "Airbnb", "Lodging", 780, "", ask("Lodging with no stated purpose: ask before deciding.")),
 
   // ---- Transportation (pp.22–23) ----
@@ -105,7 +105,7 @@ export const EXTENDED: SeedTx[] = [
 
   // ---- Education (pp.11–12, p.2) ----
   tx("e6", "Stanford Online", "Education", 6400, "graduate art history course toward my MA (not related to my job; no other education benefits used this year)", part(1150, "educational_assistance", "Up to $5,250/yr excludable under the written program; the $1,150 excess is wages because it isn't job-related, so it isn't a working condition benefit (p.12).")),
-  tx("e3", "DeepLearning.AI", "Education", 49, "AI for designers course", free("educational_assistance", "AI skills program that improves current job skills (p.2); within §127 limit.")),
+  tx("e3", "DeepLearning.AI", "Education", 49, "AI for designers course", free("educational_assistance", "AI skills program that improves current job skills (p.2); within Section 127 limit.")),
   tx("e2", "Sur La Table", "Education", 125, "pasta-making cooking class", taxed(125, "taxable_personal", "Hobby courses are excluded from educational assistance (p.11).")),
   tx("e4", "Navient", "Loan payment", 300, "student loan payment – company loan-assistance benefit", free("educational_assistance", "Employer payments of qualified education loans are educational assistance (p.11).")),
 ];

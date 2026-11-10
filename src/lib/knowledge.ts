@@ -26,7 +26,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-home-office",
     source: "Company policy",
-    ref: "Northwind Labs Benefits Policy §3.1",
+    ref: "Northwind Labs Benefits Policy Section 3.1",
     title: "Home office equipment",
     text: "Remote and hybrid employees may purchase home office equipment required for their job on their Ramp card: monitors, keyboards, mice, docks, webcams, headsets, desks and ergonomic chairs. Combined limit: $1,000 per employee per year. Equipment remains company property. Personal electronics (gaming consoles, TVs, personal tablets, smart-home devices) are not covered.",
     keywords: ["monitor", "keyboard", "mouse", "dock", "webcam", "headset", "desk", "chair", "ergonomic", "home office", "remote", "equipment", "laptop stand"],
@@ -34,7 +34,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-wellness",
     source: "Company policy",
-    ref: "Northwind Labs Benefits Policy §4.2",
+    ref: "Northwind Labs Benefits Policy Section 4.2",
     title: "Wellness stipend (taxable)",
     text: "Each employee receives up to $100 per month for wellness: gym or studio memberships, fitness classes, meditation apps and fitness equipment. Wellness purchases are a taxable benefit and are reported as imputed income through payroll each pay period.",
     keywords: ["gym", "fitness", "wellness", "yoga", "meditation", "classpass", "peloton", "equinox", "stipend", "massage", "headspace"],
@@ -42,7 +42,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-meals",
     source: "Company policy",
-    ref: "Northwind Labs Expense Policy §2.4",
+    ref: "Northwind Labs Expense Policy Section 2.4",
     title: "Meals",
     text: "Client meals and team meals with a documented business purpose are reimbursable business expenses. Employees working past 7pm on a deadline may expense one dinner up to $30, occasionally. Personal or weekend meals are not covered; if charged to the card they are treated as taxable or must be repaid.",
     keywords: ["meal", "dinner", "lunch", "client", "team", "doordash", "ubereats", "late", "deadline", "weekend"],
@@ -50,7 +50,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-travel",
     source: "Company policy",
-    ref: "Northwind Labs Expense Policy §2.1",
+    ref: "Northwind Labs Expense Policy Section 2.1",
     title: "Business travel",
     text: "Flights, lodging, ground transportation and meals while traveling for business are covered when a receipt and business purpose are submitted within 30 days. Travel costs for spouses, partners or family members are not covered and are taxable if charged to the card.",
     keywords: ["travel", "flight", "hotel", "airline", "lodging", "uber", "lyft", "rental", "trip", "spouse", "partner", "family"],
@@ -58,7 +58,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-learning",
     source: "Company policy",
-    ref: "Northwind Labs Benefits Policy §5.1",
+    ref: "Northwind Labs Benefits Policy Section 5.1",
     title: "Learning & development",
     text: "Northwind maintains a written educational assistance program. Employees may spend up to $5,250 per year on courses, certifications, books and conferences. Courses do not need to be job-related to qualify under the program, but hobby or recreational classes (cooking, golf, painting) are excluded.",
     keywords: ["course", "certification", "book", "conference", "learning", "education", "tuition", "training", "udemy", "coursera"],
@@ -66,7 +66,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-phone-internet",
     source: "Company policy",
-    ref: "Northwind Labs Benefits Policy §3.3",
+    ref: "Northwind Labs Benefits Policy Section 3.3",
     title: "Phone & internet",
     text: "Employees who must be reachable for work (on-call engineers, sales, support leads) may expense their monthly mobile plan up to $85. Northwind also pays a flat $50/month internet stipend to remote employees; because it is not substantiated, the internet stipend is taxable.",
     keywords: ["phone", "mobile", "verizon", "t-mobile", "at&t", "internet", "comcast", "xfinity", "wifi", "stipend", "on-call"],
@@ -74,7 +74,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-commute",
     source: "Company policy",
-    ref: "Northwind Labs Benefits Policy §6.1",
+    ref: "Northwind Labs Benefits Policy Section 6.1",
     title: "Commuter benefits",
     text: "Northwind pays for transit passes and office parking up to the IRS monthly limit. Rideshare between home and the office is not a commuter benefit, except a ride home after 9pm when working late, which is allowed occasionally.",
     keywords: ["commute", "transit", "parking", "clipper", "bart", "uber", "lyft", "office", "late", "monthly"],
@@ -82,7 +82,7 @@ export const POLICY_CHUNKS: KnowledgeChunk[] = [
   {
     id: "pol-gifts",
     source: "Company policy",
-    ref: "Northwind Labs Expense Policy §7.2",
+    ref: "Northwind Labs Expense Policy Section 7.2",
     title: "Gifts, celebrations and awards",
     text: "Managers may buy occasional team celebrations (cake, snacks, small team outings) and low-value holiday gifts. Gift cards to employees are allowed for recognition but are always taxable and must be reported to payroll. Service anniversary awards are tangible items chosen from the awards catalog, up to $400.",
     keywords: ["gift", "gift card", "celebration", "cake", "snacks", "holiday", "award", "anniversary", "recognition", "team", "outing"],

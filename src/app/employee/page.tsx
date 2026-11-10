@@ -135,8 +135,8 @@ export default function EmployeePortal() {
         </Card>
         <Card className="h-fit space-y-5 p-5">
           <div className="font-semibold">Benefit balances · 2026</div>
-          <Balance label="Home office equipment" used={mine.filter((t) => t.classification!.basis === "working_condition" && /monitor|chair|keyboard|webcam|desk|airpods|ipad|dock|headset|home office/i.test(t.memo + JSON.stringify(t.receipt ?? ""))).reduce((a, t) => a + t.amount - t.classification!.taxableAmount, 0)} limit={LIMITS.homeOfficeAnnual} note="Tax-free working-condition fringe (§132(d))" />
-          <Balance label="Learning & development" used={sumBasis(["educational_assistance"])} limit={LIMITS.educationalAssistanceAnnual} note="Tax-free up to $5,250/yr under §127" />
+          <Balance label="Home office equipment" used={mine.filter((t) => t.classification!.basis === "working_condition" && /monitor|chair|keyboard|webcam|desk|airpods|ipad|dock|headset|home office/i.test(t.memo + JSON.stringify(t.receipt ?? ""))).reduce((a, t) => a + t.amount - t.classification!.taxableAmount, 0)} limit={LIMITS.homeOfficeAnnual} note="Tax-free working-condition fringe (Section 132(d))" />
+          <Balance label="Learning & development" used={sumBasis(["educational_assistance"])} limit={LIMITS.educationalAssistanceAnnual} note="Tax-free up to $5,250/yr under Section 127" />
           <Balance label="Wellness (this month)" used={period.filter((t) => t.classification!.basis === "taxable_wellness").reduce((a, t) => a + t.amount, 0)} limit={LIMITS.wellnessMonthly} note="Taxable benefit, reported through payroll" />
         </Card>
       </div>
