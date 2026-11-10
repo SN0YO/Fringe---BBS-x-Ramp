@@ -6,7 +6,7 @@ import { CURRENT_PERIOD, EMPLOYEES, PAY_PERIODS, SEED_TRANSACTIONS, payPeriodFor
 import type { Classification, Employee, PayPeriod, Receipt, Transaction, Treatment, TxStatus } from "./types";
 import { AUTO_APPROVE_THRESHOLD } from "./types";
 
-const KEY = "ramp-fringe-state-v1";
+const KEY = "ramp-fringe-state-v2";
 
 export type Role = "finance" | "employee";
 
@@ -104,7 +104,11 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
-      if (raw) setState(JSON.parse(raw));
+      if (raw) {
+        const saved = JSON.parse(raw) as State;
+        // Ignore anything that doesn't look like our state shape.
+        if (Array.isArray(saved?.transactions) && Array.isArray(saved?.periods) && saved.transactions.every((t) => t?.classification)) setState({ ...saved, syncs: saved.syncs ?? [] });
+      }
       const r = localStorage.getItem(KEY + ":role");
       if (r) {
         const { role, employeeId } = JSON.parse(r);
