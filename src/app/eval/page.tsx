@@ -5,6 +5,7 @@ import { Check, Loader2, Play, Upload, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { HOLDOUT } from "@/lib/holdout";
 import { EXTENDED } from "@/lib/extended";
+import { SNAPSHOT, snapshotResults } from "@/lib/eval-snapshot";
 
 const UNSEEN = [...HOLDOUT, ...EXTENDED];
 import { SEED_TRANSACTIONS, type SeedTx } from "@/lib/seed";
@@ -73,7 +74,11 @@ export default function Eval() {
   const emp = (id: string) => s.employees.find((e) => e.id === id);
   const mcc = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyMccBaseline(t)])), [cases]);
   const rules = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyRules({ ...t, employeeTitle: emp(t.employeeId)?.title })])), [cases]); // eslint-disable-line react-hooks/exhaustive-deps
-  const results: Record<Engine, Record<string, Classification | undefined>> = { mcc, rules, claude };
+  // Until a live run produces results, show the saved run (no API cost).
+  const live = Object.keys(claude).length > 0 || running;
+  const saved = useMemo(() => snapshotResults(), []);
+  const usingSnapshot = !live && set !== "seed" && set !== "csv";
+  const results: Record<Engine, Record<string, Classification | undefined>> = { mcc, rules, claude: usingSnapshot ? saved : claude };
 
   const runClaude = async () => {
     setRunning(true);
@@ -145,7 +150,14 @@ export default function Eval() {
           const m = metrics(cases, results[e]);
           return (
             <Card key={e} className={cx("p-4", e === "claude" && "border-ink")}>
-              <div className="text-[13px] text-muted">{ENGINE_LABEL[e]}</div>
+              <div className="flex items-center justify-between gap-2 text-[13px] text-muted">
+                <span>{ENGINE_LABEL[e]}</span>
+                {e === "claude" && m.n > 0 && (
+                  <span className={cx("rounded-md px-1.5 py-0.5 text-[11px] font-medium", usingSnapshot ? "bg-paper text-ink-2" : "bg-accent text-accent-ink")}>
+                    {usingSnapshot ? `Saved run · ${SNAPSHOT.runAt}` : running ? "Live run…" : "Live run"}
+                  </span>
+                )}
+              </div>
               {e === "claude" && m.n === 0 ? (
                 <div className="mt-2 text-sm text-muted">{s.ai.enabled ? (running ? "Running…" : "Click “Run Fringe AI” to score Claude on this set.") : "Needs ANTHROPIC_API_KEY on the server."}</div>
               ) : (
