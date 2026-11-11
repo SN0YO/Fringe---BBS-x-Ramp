@@ -43,7 +43,7 @@ export function ReceiptUpload({ txId, amount, merchant }: { txId: string; amount
       const imageDataUrl = await toDataUrl(f);
       if (!s.ai.enabled) {
         setState("manual");
-        setErr("Receipt photo reading needs a live Claude call, which is off in demo mode. Enter the line items instead.");
+        setErr("Receipt photo reading needs a live AI call, which is off in demo mode. Enter the line items instead.");
         return;
       }
       const res = await fetch("/api/receipt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ imageDataUrl }) });
@@ -74,7 +74,7 @@ export function ReceiptUpload({ txId, amount, merchant }: { txId: string; amount
       )}
       {state === "reading" && (
         <div className="flex items-center gap-2 text-sm text-muted">
-          <Loader2 className="size-4 animate-spin" /> Reading receipt with Claude vision…
+          <Loader2 className="size-4 animate-spin" /> Reading receipt with Fringe AI vision…
         </div>
       )}
       {err && <div className="mt-2 text-[13px] text-tax">{err}</div>}

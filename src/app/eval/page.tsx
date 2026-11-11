@@ -14,8 +14,8 @@ import { TREATMENT_LABEL, type Classification, type Treatment } from "@/lib/type
 import { money } from "@/lib/payroll";
 import { Button, Card, PageHeader, TreatmentPill, cx } from "@/components/ui";
 
-type Engine = "mcc" | "rules" | "claude";
-const ENGINE_LABEL: Record<Engine, string> = { mcc: "Status quo: tax by merchant category", rules: "Keyword rules (offline engine)", claude: "Fringe AI (Claude)" };
+type Engine = "mcc" | "rules" | "ai";
+const ENGINE_LABEL: Record<Engine, string> = { mcc: "Status quo: tax by merchant category", rules: "Keyword rules (offline engine)", ai: "Fringe AI" };
 
 function correct(c: Classification | undefined, t: SeedTx) {
   return !!c && c.treatment === t.truth.treatment && Math.abs(c.taxableAmount - t.truth.taxableAmount) < 1;
@@ -65,7 +65,7 @@ export default function Eval() {
   const s = useStore();
   const [set, setSet] = useState<"unseen" | "holdout" | "extended" | "seed" | "csv">("unseen");
   const [csv, setCsv] = useState<SeedTx[]>([]);
-  const [claude, setClaude] = useState<Record<string, Classification | undefined>>({});
+  const [liveResults, setLiveResults] = useState<Record<string, Classification | undefined>>({});
   const [running, setRunning] = useState(false);
   const [fallbacks, setFallbacks] = useState(0);
   const file = useRef<HTMLInputElement>(null);
@@ -75,12 +75,12 @@ export default function Eval() {
   const mcc = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyMccBaseline(t)])), [cases]);
   const rules = useMemo(() => Object.fromEntries(cases.map((t) => [t.id, classifyRules({ ...t, employeeTitle: emp(t.employeeId)?.title })])), [cases]); // eslint-disable-line react-hooks/exhaustive-deps
   // Until a live run produces results, show the saved run (no API cost).
-  const live = Object.keys(claude).length > 0 || running;
+  const live = Object.keys(liveResults).length > 0 || running;
   const saved = useMemo(() => snapshotResults(), []);
   const usingSnapshot = !live && set !== "seed" && set !== "csv";
-  const results: Record<Engine, Record<string, Classification | undefined>> = { mcc, rules, claude: usingSnapshot ? saved : claude };
+  const results: Record<Engine, Record<string, Classification | undefined>> = { mcc, rules, ai: usingSnapshot ? saved : liveResults };
 
-  const runClaude = async () => {
+  const runLive = async () => {
     setRunning(true);
     setFallbacks(0);
     const queue = [...cases];
@@ -93,7 +93,7 @@ export default function Eval() {
           body: JSON.stringify({ ...t, employeeTitle: emp(t.employeeId)?.title }),
         }).then((r) => r.json());
         if (res.fallback) setFallbacks((f) => f + 1);
-        else setClaude((c) => ({ ...c, [t.id]: res.classification }));
+        else setLiveResults((c) => ({ ...c, [t.id]: res.classification }));
       }
     };
     await Promise.all(Array.from({ length: 4 }, work));
@@ -112,12 +112,12 @@ export default function Eval() {
               if (!f) return;
               setCsv(parseCsv(await f.text()));
               setSet("csv");
-              setClaude({});
+              setLiveResults({});
             }} />
             <Button onClick={() => file.current?.click()}>
               <Upload className="size-4" /> Import labeled CSV
             </Button>
-            <Button variant="primary" disabled={!s.ai.enabled || running || !cases.length} onClick={runClaude} title={s.ai.enabled ? "Runs Claude live on every case (uses API credits)" : "Live Claude calls are off (demo mode)"}>
+            <Button variant="primary" disabled={!s.ai.enabled || running || !cases.length} onClick={runLive} title={s.ai.enabled ? "Runs Fringe AI live on every case (uses API credits)" : "Live AI calls are off (demo mode)"}>
               {running ? <Loader2 className="size-4 animate-spin" /> : <Play className="size-4" />} Run Fringe AI
             </Button>
           </>
@@ -132,7 +132,7 @@ export default function Eval() {
           ["seed", `Demo workspace (${SEED_TRANSACTIONS.length})`],
           ["csv", `Imported (${csv.length})`],
         ] as const).map(([k, l]) => (
-          <button key={k} onClick={() => { setSet(k); setClaude({}); }} className={cx("rounded-md px-3 py-1.5 font-medium", set === k ? "bg-ink text-white" : "text-ink-2")}>
+          <button key={k} onClick={() => { setSet(k); setLiveResults({}); }} className={cx("rounded-md px-3 py-1.5 font-medium", set === k ? "bg-ink text-white" : "text-ink-2")}>
             {l}
           </button>
         ))}
@@ -149,17 +149,17 @@ export default function Eval() {
         {(Object.keys(ENGINE_LABEL) as Engine[]).map((e) => {
           const m = metrics(cases, results[e]);
           return (
-            <Card key={e} className={cx("p-4", e === "claude" && "border-ink")}>
+            <Card key={e} className={cx("p-4", e === "ai" && "border-ink")}>
               <div className="flex items-center justify-between gap-2 text-[13px] text-muted">
                 <span>{ENGINE_LABEL[e]}</span>
-                {e === "claude" && m.n > 0 && (
+                {e === "ai" && m.n > 0 && (
                   <span className={cx("rounded-md px-1.5 py-0.5 text-[11px] font-medium", usingSnapshot ? "bg-paper text-ink-2" : "bg-accent text-accent-ink")}>
                     {usingSnapshot ? `Saved run · ${SNAPSHOT.runAt}` : running ? "Live run…" : "Live run"}
                   </span>
                 )}
               </div>
-              {e === "claude" && m.n === 0 ? (
-                <div className="mt-2 text-sm text-muted">{s.ai.enabled ? (running ? "Running…" : "Click “Run Fringe AI” to score Claude on this set.") : "Live Claude calls are off (demo mode)."}</div>
+              {e === "ai" && m.n === 0 ? (
+                <div className="mt-2 text-sm text-muted">{s.ai.enabled ? (running ? "Running…" : "Click “Run Fringe AI” to score Fringe AI on this set.") : "Live AI calls are off (demo mode)."}</div>
               ) : (
                 <>
                   <div className="tabular mt-1 text-3xl font-semibold">{Math.round(m.acc * 100)}%</div>
@@ -182,7 +182,7 @@ export default function Eval() {
           );
         })}
       </div>
-      {fallbacks > 0 && <div className="mt-3 text-[13px] text-tax">{fallbacks} cases returned an error from Claude and were left unscored.</div>}
+      {fallbacks > 0 && <div className="mt-3 text-[13px] text-tax">{fallbacks} cases returned an error from the AI model and were left unscored.</div>}
 
       <Card className="mt-4 overflow-x-auto">
         <table className="w-full min-w-[860px] text-sm">
@@ -211,7 +211,7 @@ export default function Eval() {
                 </td>
                 {(Object.keys(ENGINE_LABEL) as Engine[]).map((e) => {
                   const c = results[e][t.id];
-                  if (!c) return <td key={e} className="py-3 text-[12px] text-muted">{e === "claude" && running ? <Loader2 className="size-4 animate-spin" /> : "—"}</td>;
+                  if (!c) return <td key={e} className="py-3 text-[12px] text-muted">{e === "ai" && running ? <Loader2 className="size-4 animate-spin" /> : "—"}</td>;
                   const ok = correct(c, t);
                   return (
                     <td key={e} className="py-3">

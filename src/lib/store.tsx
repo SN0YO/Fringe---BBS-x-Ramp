@@ -7,7 +7,7 @@ import { CURRENT_PERIOD, EMPLOYEES, PAY_PERIODS, SEED_TRANSACTIONS, payPeriodFor
 import type { Classification, Employee, PayPeriod, Receipt, Transaction, Treatment, TxStatus } from "./types";
 import { AUTO_APPROVE_THRESHOLD } from "./types";
 
-const KEY = "ramp-fringe-state-v2";
+const KEY = "ramp-fringe-state-v3";
 
 export type Role = "finance" | "employee";
 
@@ -175,7 +175,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
             ...t.history,
             {
               at: nowIso(),
-              actor: c.engine === "claude" ? "Fringe AI" : "Fringe (offline engine)",
+              actor: c.engine === "ai" ? "Fringe AI" : "Fringe (offline engine)",
               action: `Re-classified as ${c.treatment.replace("_", " ")} (${Math.round(c.confidence * 100)}% confidence)`,
             },
           ],

@@ -37,7 +37,7 @@ export interface Classification {
   rationale: string;
   citations: Citation[];
   question: string | null; // question for the employee when context is missing
-  engine: "claude" | "rules" | "mcc_baseline" | "human";
+  engine: "ai" | "rules" | "mcc_baseline" | "human";
   model?: string;
   retrieved?: string[]; // ids of knowledge chunks retrieved for this decision
   classifiedAt: string;
