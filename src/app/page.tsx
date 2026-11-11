@@ -54,7 +54,7 @@ export default function Overview() {
         actions={
           <>
             {s.ai.enabled && (
-              <Button onClick={() => s.classifyMany(txs.filter((t) => t.status !== "synced" && t.classification?.engine !== "claude").map((t) => t.id))}>
+              <Button onClick={() => s.classifyMany(txs.filter((t) => t.status !== "synced" && t.classification?.engine !== "ai").map((t) => t.id))}>
                 <Sparkles className="size-4" /> Run Fringe AI on period
               </Button>
             )}

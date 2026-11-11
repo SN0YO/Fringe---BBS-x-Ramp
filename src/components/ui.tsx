@@ -145,3 +145,10 @@ export function Empty({ title, sub }: { title: string; sub?: string }) {
 export function fmtDate(d: string) {
   return new Date(d + (d.length === 10 ? "T12:00:00" : "")).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
+
+/** Human-friendly model name for display, e.g. "Opus 5.5". */
+export function modelName(id?: string | null) {
+  if (!id) return "";
+  const m = /([a-z]+)-(\d+)-(\d+)$/.exec(id);
+  return m ? `${m[1][0].toUpperCase()}${m[1].slice(1)} ${m[2]}.${m[3]}` : id;
+}

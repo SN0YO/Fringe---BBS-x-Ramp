@@ -41,7 +41,7 @@ function ReviewCard({ t }: { t: Transaction }) {
         )}
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-end gap-2">
-        {s.ai.enabled && c.engine !== "claude" && (
+        {s.ai.enabled && c.engine !== "ai" && (
           <Button size="sm" variant="ghost" onClick={() => s.classify(t.id)} disabled={s.busy[t.id]}>
             <Sparkles className="size-3.5" /> Ask Fringe AI
           </Button>

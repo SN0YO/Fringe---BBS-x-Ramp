@@ -17,7 +17,7 @@ An AI agent inside Ramp. It reads every corporate-card transaction, receipt and 
 | **Transactions** (`/transactions`) | Every swipe with Fringe's decision. Click any row for the reasoning drawer (rationale, line-item split, citations to Pub 15-B and policy, paycheck impact, audit trail, override, receipt upload). **Simulate swipe** to demo live |
 | **Payroll sync** (`/payroll`) | Imputed income per employee grouped by provider, optional **tax gross-up**, post to Gusto/Rippling (simulated connector, shows the payload), CSV export, sync history |
 | **Policy & IRS 15-B** (`/policy`) | The retrieval corpus (IRS summaries + company policy), statutory limits, and a live retrieval tester |
-| **Accuracy** (`/eval`) | Labeled test sets scored for three engines: status quo (tax by merchant category), keyword rules, and Fringe AI (Claude). Import your own labeled CSV |
+| **Accuracy** (`/eval`) | Labeled test sets scored for three engines: status quo (tax by merchant category), keyword rules, and Fringe AI. Import your own labeled CSV |
 | **Ask Fringe** (`/ask`) | Chat grounded in Pub 15-B, policy and live workspace data |
 | **Employee view** (toggle top-left) | "Kept tax-free" savings, Fringe's questions with quick replies, card activity in plain English, benefit balances |
 
@@ -30,8 +30,8 @@ npm run dev                  # http://localhost:3000
 ```
 
 **Two modes:**
-- **Demo mode (default, $0):** no Claude API calls, even if a key is set. The app replays real recorded Claude outputs (`src/lib/recorded.ts`: the Amazon receipt split and the gift-card chat answer), shows the saved 65/66 accuracy run (`src/lib/eval-snapshot.ts`), and uses the free offline engine for everything else.
-- **Live mode:** set `ANTHROPIC_API_KEY` **and** `FRINGE_LIVE=true` (Vercel → Settings → Environment Variables, then redeploy). Every decision, receipt photo and chat answer then calls Claude and uses API credits.
+- **Demo mode (default, $0):** no AI API calls, even if a key is set. The app replays real recorded AI outputs (`src/lib/recorded.ts`: the Amazon receipt split and the gift-card chat answer), shows the saved 65/66 accuracy run (`src/lib/eval-snapshot.ts`), and uses the free offline engine for everything else.
+- **Live mode:** set `ANTHROPIC_API_KEY` **and** `FRINGE_LIVE=true` (Vercel → Settings → Environment Variables, then redeploy). Every decision, receipt photo and chat answer then calls the AI model and uses API credits.
 
 ### Deploy (Vercel)
 
@@ -43,7 +43,7 @@ npm run dev                  # http://localhost:3000
 
 `src/lib/agent.ts`
 1. **Retrieve.** Lexical retrieval over `src/lib/knowledge.ts`: 18 passages quoted **verbatim** from IRS Pub 15-B (2026) and Pub 15 (2026) with page references (`src/lib/irs-2026.ts`), plus company policy chunks. The full corpus also sits in a cached system prompt.
-2. **Reason.** Claude (`claude-opus-5-5`) gets merchant, MCC, memo, itemized receipt lines (or the receipt **image**), the employee's role, and any answer they gave. It returns **structured output** (Zod schema): treatment, IRS basis, taxable amount, per-line split, calibrated confidence, citations, and a question for the employee when context is missing.
+2. **Reason.** An LLM (Anthropic Opus 5.5) gets merchant, MCC, memo, itemized receipt lines (or the receipt **image**), the employee's role, and any answer they gave. It returns **structured output** (Zod schema): treatment, IRS basis, taxable amount, per-line split, calibrated confidence, citations, and a question for the employee when context is missing.
 3. **Route (human-in-the-loop).** ≥85% confidence → auto-approved; below → finance review queue; `needs_info` → question to the cardholder. Answers re-trigger classification.
 4. **Post.** Approved taxable amounts aggregate per employee per pay period → payroll connector (`/api/payroll`, simulated).
 
@@ -57,7 +57,7 @@ Scoring: correct only if the treatment matches **and** taxable amount is within 
 |---|---|---|---|---|
 | Status quo: tax by merchant category | 72% | 50% | 50% | **50%** |
 | Keyword rules (offline engine) | 100%* | 44% | 50% | **48%** |
-| Fringe AI (Claude) | run on `/eval` | run on `/eval` | run on `/eval` | **run on `/eval`** |
+| Fringe AI | run on `/eval` | run on `/eval` | run on `/eval` | **run on `/eval`** |
 
 \*The keyword rules were tuned on the demo workspace, so 100% there is overfit. The held-out set and the 50 Pub 15-B scenarios (`src/lib/extended.ts`) were written afterward and never used for tuning. Each scenario's label cites the 2026 Pub 15-B / Pub 15 page it relies on. The labels were drafted by AI and should get a practitioner review. **Click "Run Fringe AI" on `/eval` → "All unseen (66)" before the pitch and put the real number on the slide.**
 

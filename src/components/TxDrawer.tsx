@@ -5,7 +5,7 @@ import { BookOpen, Check, Loader2, Pencil, Sparkles, X } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { BASIS_LABEL, TREATMENT_LABEL, type Treatment } from "@/lib/types";
 import { money, taxOn } from "@/lib/payroll";
-import { Avatar, Button, Confidence, MerchantLogo, StatusPill, TreatmentPill, cx, fmtDate } from "./ui";
+import { Avatar, Button, Confidence, MerchantLogo, StatusPill, TreatmentPill, cx, fmtDate, modelName } from "./ui";
 import { ReceiptUpload } from "./ReceiptUpload";
 
 export function TxDrawer() {
@@ -74,7 +74,7 @@ export function TxDrawer() {
                 <Sparkles className="size-4" /> Fringe decision
               </div>
               <span className="rounded-md bg-paper px-1.5 py-0.5 text-[11px] text-muted">
-                {c.engine === "claude" ? `Claude · ${c.model}${s.ai.enabled ? "" : " · recorded"}` : c.engine === "human" ? "Set by finance" : "Offline engine"}
+                {c.engine === "ai" ? `Fringe AI · ${modelName(c.model)}${s.ai.enabled ? "" : " · recorded"}` : c.engine === "human" ? "Set by finance" : "Offline engine"}
               </span>
             </div>
             {busy ? (

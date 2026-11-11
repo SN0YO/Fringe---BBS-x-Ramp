@@ -5,7 +5,7 @@ export const maxDuration = 60;
 
 export async function POST(req: Request) {
   const { imageDataUrl } = (await req.json()) as { imageDataUrl: string };
-  if (!aiEnabled()) return NextResponse.json({ error: "Receipt photo reading uses a live Claude call, which is off in demo mode. Enter the line items instead." }, { status: 400 });
+  if (!aiEnabled()) return NextResponse.json({ error: "Receipt photo reading uses a live AI call, which is off in demo mode. Enter the line items instead." }, { status: 400 });
   try {
     return NextResponse.json({ receipt: await readReceipt(imageDataUrl) });
   } catch (e) {

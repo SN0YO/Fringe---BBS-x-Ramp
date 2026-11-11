@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { BookOpen, FlaskConical, Inbox, LayoutGrid, MessageSquare, ReceiptText, RotateCcw, Send, Sparkles, UserRound, X } from "lucide-react";
 import { useStore } from "@/lib/store";
-import { Avatar, cx } from "./ui";
+import { Avatar, cx, modelName } from "./ui";
 import { TxDrawer } from "./TxDrawer";
 
 export function Logo() {
@@ -150,13 +150,13 @@ export function AiBadge() {
       <Sparkles className="size-3.5 text-ink" />
       <div className="leading-tight">
         <div className="font-medium">Fringe AI connected</div>
-        <div className="text-muted">{ai.model}</div>
+        <div className="text-muted">{modelName(ai.model)}</div>
       </div>
     </div>
   ) : (
     <div className="rounded-lg border border-dashed border-line-2 bg-white px-2.5 py-2 text-[12px] leading-tight">
       <div className="font-medium">Demo mode · no API cost</div>
-      <div className="text-muted">Recorded Claude results + offline engine. Set FRINGE_LIVE=true for live Claude.</div>
+      <div className="text-muted">Recorded AI results + offline engine. Set FRINGE_LIVE=true for live AI.</div>
     </div>
   );
 }

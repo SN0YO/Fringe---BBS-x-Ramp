@@ -3,16 +3,16 @@ import { HOLDOUT } from "./holdout";
 import type { Classification } from "./types";
 
 // Saved result of a real Fringe AI run against the live deployment, so the
-// Accuracy page can show Claude's score without spending API credits.
+// Accuracy page can show Fringe AI's score without spending API credits.
 //
-// Run: 2026-11-10, claude-opus-5-5, all 66 unseen cases (held-out + Pub 15-B
+// Run: 2026-11-10, Opus 5.5, all 66 unseen cases (held-out + Pub 15-B
 // scenarios), verbatim 2026 Pub 15-B knowledge base. Result: 65/66 correct.
 // For each correct case the treatment matched the label and the taxable amount
 // was within $1 of it; we store the label's values for those. The single miss
 // is stored as Fringe returned it.
 export const SNAPSHOT = {
   runAt: "Nov 10, 2026",
-  model: "claude-opus-5-5",
+  model: "opus-5-5",
   misses: {
     "ex-09": {
       treatment: "taxable",
@@ -36,7 +36,7 @@ export function snapshotResults(): Record<string, Classification> {
       rationale: miss?.rationale ?? "",
       citations: [],
       question: null,
-      engine: "claude",
+      engine: "ai",
       model: SNAPSHOT.model,
       classifiedAt: "2026-11-10T04:50:00.000Z",
     };

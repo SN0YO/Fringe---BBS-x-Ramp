@@ -1,5 +1,5 @@
-// Real Claude outputs recorded from live calls to the deployed app on
-// 2026-11-10 (model claude-opus-5-5). In demo mode (FRINGE_LIVE not "true")
+// Real AI model outputs recorded from live calls to the deployed app on
+// 2026-11-10 (model Opus 5.5). In demo mode (FRINGE_LIVE not "true")
 // the app replays these instead of calling the API, so it costs nothing.
 // Only outputs that were actually recorded are listed here. Nothing is made up.
 
@@ -45,8 +45,8 @@ const RECORDED_CLASSIFICATIONS: { input: ClassifyKeyInput; output: Classificatio
         "The keyboard and ergonomic chair are home office equipment you need for your job, so they are tax-free working condition benefits under company policy. The Mario Kart game is a personal entertainment item with no business use, so its $80.00 cost is taxable income and will be reported to payroll (or you can repay it). Line items: Logitech MX Keys S wireless keyboard ($129.99) → tax-free; Ergonomic mesh office chair, lumbar support ($302.49) → tax-free; Mario Kart 8 Deluxe - Nintendo Switch ($80.00) → taxable.",
       citations: cites("pol-home-office", "irs-working-condition", "irs-general"),
       question: null,
-      engine: "claude",
-      model: "claude-opus-5-5",
+      engine: "ai",
+      model: "opus-5-5",
       retrieved: ["pol-home-office", "irs-working-condition", "irs-general"],
       classifiedAt: "2026-11-10T04:38:18.250Z",
     },

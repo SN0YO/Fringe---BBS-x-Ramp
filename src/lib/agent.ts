@@ -15,9 +15,9 @@ export function hasKey() {
 }
 
 /**
- * Live Claude calls (which cost API credits) happen only when a key is set AND
+ * Live AI calls (which cost API credits) happen only when a key is set AND
  * FRINGE_LIVE=true. Otherwise the app runs in demo mode: it replays recorded
- * Claude outputs (src/lib/recorded.ts) and uses the free offline engine.
+ * AI model outputs (src/lib/recorded.ts) and uses the free offline engine.
  */
 export function aiEnabled() {
   return hasKey() && process.env.FRINGE_LIVE === "true";
@@ -101,7 +101,7 @@ function dataUrlToImage(dataUrl: string): Anthropic.Beta.BetaImageBlockParam | n
   return { type: "image", source: { type: "base64", media_type: m[1] as "image/png", data: m[2] } };
 }
 
-export async function classifyWithClaude(tx: ClassifyInput): Promise<Classification> {
+export async function classifyWithModel(tx: ClassifyInput): Promise<Classification> {
   const lines = tx.receipt?.lines?.length
     ? tx.receipt.lines.map((l) => `  - ${l.description}: $${l.amount.toFixed(2)}`).join("\n")
     : "  (no itemized receipt)";
@@ -160,7 +160,7 @@ Most relevant knowledge-base docs (retrieved): ${retrieved.join(", ")}`;
     rationale: out.rationale + lineNote,
     citations,
     question: out.treatment === "needs_info" ? out.question_for_employee ?? "Can you tell us what this purchase was for?" : null,
-    engine: "claude",
+    engine: "ai",
     model: res.model,
     retrieved,
     classifiedAt: new Date().toISOString(),
